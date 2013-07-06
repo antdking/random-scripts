@@ -9,6 +9,7 @@ if [[ ! -f "$HOME/bin/ssh" ]] || [[ "$1" == "install" ]]; then
     echo "installing the script to HOME/bin/ssh"
     mkdir -p "$HOME/bin"
     cp -f "$filename" "$HOME/bin/ssh"
+    chmod a+x $HOME/bin/ssh
     echo "adding in the path option for it"
     echo "PATH=$HOME/bin:$PATH" >> "$HOME/.bashrc"
     echo "all done. please use the command by typing 'ssh'"
