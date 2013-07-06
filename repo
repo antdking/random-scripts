@@ -1,0 +1,168 @@
+#!/bin/bash
+# declare the version numbers
+major=0
+minor=8
+
+# normally we would use the -g, however this was introduced in version 4.2, which might not be used by everyone
+# instead declare the array outside the function to make it global
+declare -A fetch_array
+
+read_dom () {
+    local IFS=\>
+    read -d \< entity content
+    local ret="$?"
+    tag_name="${entity%% *}"
+    attributes="${entity#* }"
+    return "$ret"
+}
+
+parse_remotes () {
+if [[ $tag_name = "remote" ]] ; then
+	eval local $attributes 2>/dev/null #ignore the warnings
+	if [[ $fetch == ".." ]]; then
+	# TODO: find a way to grab the correct url instead of hard coding it
+	    fetch="https://github.com/" # for now we will use this as '..' means use the repo init url :/
+	fi
+	fetch_array[$name]="$fetch"
+fi
+}
+	
+
+parse_default () {
+if [[ $tag_name = "default" ]] ; then
+	eval local $attributes 2>/dev/null #ignore the warnings
+	default_revision="$revision"
+	default_remote="$remote"
+fi
+}
+
+parse_projects () {
+    if [[ $tag_name = "project" ]] ; then
+	eval local $attributes 2>/dev/null #ignore the warnings
+	if [[ -z $remote ]] ; then
+	    remote="$default_remote"
+	fi
+	fetch_url="${fetch_array[$remote]}"
+
+
+	if [[ ! "$fetch_url" == "*/" ]] && [[ ! "$name" == "/*" ]]; then
+		fetch_url=$fetch_url/
+	fi
+
+	if [[ -z $revision ]] ; then
+	    revision=$default_revision
+	fi
+
+	case $revision in
+	  *heads* ) branch=${revision:11} ;;
+	  *tags*  ) branch=${revision:10} ;;
+	  *       ) branch=$revision ;;
+	esac
+
+	sync_projects
+#because it's being declared from a function, make it global
+	declare -g copy_path="$path"
+fi
+}
+
+sync_projects () {
+  if [ ! -d "$path" ]; then
+      echo syncing $name from $remote to directory $path
+	if [[ "$revision" == *tags* ]]; then
+	  echo "warning: you are syncing to a detatched head state"
+	fi
+      git clone -q $fetch_url$name -b $branch $path 2>/dev/null
+  else
+#TODO: if the old revision is not the same as the new one, either make a new branch, or delete the repo and start again
+      # for now, don't attempt to update tags
+      if [[ ! "$revision" = *tags* ]]; then
+        echo updating $name from $remote in directory $path
+        git --git-dir=$path/.git pull -q 2>/dev/null
+      fi
+  fi
+}
+
+copy_files () {
+    if [[ $tag_name = "copyfile" ]] ; then
+	eval local $attributes 2>/dev/null #ignore the warnings
+	cp -f $copy_path/$src $dest
+    fi
+}
+
+update () {
+    mkdir -p .gitrepo
+    curl -s https://raw.github.com/Cafogen/android/cm-10.1/repo -o .gitrepo/repo.tmp
+    new_minor=$(awk 'NR==4{print substr($0,7); exit}' repo.tmp)
+    new_major=$(awk 'NR==3{print substr($0,6); exit}' repo.tmp)
+
+    if [[ ! "$opt_up" == "1" ]] && [[ "$minor" < "$new_minor" ]] && [[ ! "$major" < "$new_major" ]]; then
+      echo "there is a new optional update available"
+      echo "if you would like it, please run $0 -u to update"
+    fi
+
+# force an update if the major version is out of date
+    if [[ "$opt_up" == "1" ]] || [[ "$major" < "$new_major" ]]; then
+      if [[ ! "$opt_up" == "1" ]]; then
+        echo "forcing an update to next major release"
+      fi
+      echo "updating..."
+      cur_name=$(basename $BASH_SOURCE)
+      cp -f .gitrepo/repo.tmp repo
+      rm .gitrepo/repo.tmp
+      echo "updated"
+      exit 1
+    fi
+}
+
+# force a check for update if there is an internet connection
+ping -c 1 www.google.co.uk 2>/dev/null > /dev/null && internet="ok" || internet="error"
+if [[ "$internet" == "ok" ]]; then
+	update
+else
+	echo "your internet doesn't seem to be working,"
+	echo "please enable the iternet so updates can be checked"
+fi
+func_sync () {
+cat $file_to_use | while read_dom; do
+	parse_remotes
+	parse_default
+	parse_projects
+	copy_files
+done
+}
+
+func_help () {
+echo "usage:"
+echo "      $0 [option]"
+echo "      or"
+echo "      $0 [manifest]"
+echo .
+echo "options:"
+echo "      -d | --default      use the default.xml"
+echo "      -h | --help         show this page"
+echo "      -u | --update	force an update"
+}
+
+
+case $1 in
+  -u | --update ) export opt_up=1 ;;
+  -h | --help | "" ) func_help ;;
+       
+  -d ) if [[ ! -f "default.xml" ]] ; then
+          echo "error: 'default.xml' can't be found" 1>&2
+   	  exit 1
+       else
+   	  export file_to_use=default.xml
+	  func_sync
+       fi ;;
+
+  *  ) if [[ -f "$1" ]]; then
+          file_to_use="$1"
+	  func_sync
+       else
+	  echo "the file can't be found"
+	  echo "please ensure you are using the tool correctly"
+	  echo "use $0 --help for more information"
+	  exit 1
+       fi ;;
+esac
