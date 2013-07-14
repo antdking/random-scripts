@@ -3,7 +3,7 @@
 major=0
 minor=8
 
-# normally we would use the -g, however this was introduced in version 4.2, which might not be used by everyone
+# normally we would use the -g, however this was only introduced in version 4.2, which might not be used by everyone
 # instead declare the array outside the function to make it global
 declare -A fetch_array
 
@@ -20,8 +20,12 @@ parse_remotes () {
 if [[ $tag_name = "remote" ]] ; then
 	eval local $attributes 2>/dev/null #ignore the warnings
 	if [[ $fetch == ".." ]]; then
-	# TODO: find a way to grab the correct url instead of hard coding it
-	    fetch="https://github.com/" # for now we will use this as '..' means use the repo init url :/
+		echo "the base url of the projects is required"
+		read -p "[https://github.com/] " fetch
+		if [[ ! $fetch ]]; then
+			# TODO: in past experience, users are unreliable. find a way to do this better!
+			fetch="https://github.com/"
+		fi
 	fi
 	fetch_array[$name]="$fetch"
 fi
