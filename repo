@@ -51,6 +51,8 @@ parse_projects () {
 
 	if [[ ! "$fetch_url" == "*/" ]] && [[ ! "$name" == "/*" ]]; then
 		fetch_url=$fetch_url/
+	elif [[ "$fetch_url" == "*/" ]] && [[ "$name" == "/*" ]]; then
+		fetch_url="${fetch_url%?}"
 	fi
 
 	if [[ -z $revision ]] ; then
