@@ -1,7 +1,7 @@
 #!/bin/bash
 # declare the version numbers
 major=0
-minor=8
+minor=9
 
 # normally we would use the -g, however this was only introduced in version 4.2, which might not be used by everyone
 # instead declare the array outside the function to make it global
@@ -97,7 +97,7 @@ copy_files () {
 
 update () {
     mkdir -p .gitrepo
-    curl -s https://raw.github.com/Cafogen/android/cm-10.1/repo -o .gitrepo/repo.tmp
+    curl -s https://raw.github.com/cybojenix/random-scripts/master/repo -o .gitrepo/repo.tmp
     new_minor=$(awk 'NR==4{print substr($0,7); exit}' repo.tmp)
     new_major=$(awk 'NR==3{print substr($0,6); exit}' repo.tmp)
 
