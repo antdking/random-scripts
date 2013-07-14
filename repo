@@ -99,7 +99,7 @@ update () {
     mkdir -p .gitrepo
     curl -s https://raw.github.com/cybojenix/random-scripts/master/repo -o .gitrepo/repo.tmp
     new_minor=$(awk 'NR==4{print substr($0,7); exit}' .gitrepo/repo.tmp)
-    new_major=$(awk 'NR==3{print substr($0,6); exit}' .gitrepo/repo.tmp)
+    new_major=$(awk 'NR==3{print substr($0,7); exit}' .gitrepo/repo.tmp)
 
     if [[ ! "$opt_up" == "1" ]] && [[ "$minor" < "$new_minor" ]] && [[ ! "$major" < "$new_major" ]]; then
       echo "there is a new optional update available"
