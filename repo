@@ -129,12 +129,12 @@ else
 	echo "please enable the iternet so updates can be checked"
 fi
 func_sync () {
-cat $file_to_use | while read_dom; do
+while read_dom <$9; do
 	parse_remotes
 	parse_default
 	parse_projects
 	copy_files
-done
+done 9< "$file_to_use"
 }
 
 func_help () {
