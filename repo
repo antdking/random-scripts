@@ -102,8 +102,10 @@ update () {
     new_major=$(awk 'NR==3{print substr($0,7); exit}' .gitrepo/repo.tmp)
 
     if [[ ! "$opt_up" == "1" ]] && [[ "$minor" < "$new_minor" ]] && [[ ! "$major" < "$new_major" ]]; then
-      echo "there is a new optional update available"
-      echo "if you would like it, please run $0 -u to update"
+      if [[ ! "$1" == "-u" ]]; then
+        echo "there is a new optional update available"
+        echo "if you would like it, please run $0 -u to update"
+      fi
     fi
 
 # force an update if the major version is out of date
@@ -151,16 +153,16 @@ echo "      -u | --update	force an update"
 
 
 case $1 in
-  -u | --update ) export opt_up=1 ;;
+  -u | --update ) export opt_up=1 ; update;;
   -h | --help | "" ) func_help ;;
        
   -d ) if [[ ! -f "default.xml" ]] ; then
           echo "error: 'default.xml' can't be found" 1>&2
    	  exit 1
-       else
-   	  export file_to_use=default.xml
-	  func_sync
-       fi ;;
+       fi
+       export file_to_use=default.xml
+       func_sync
+       ;;
 
   *  ) if [[ -f "$1" ]]; then
           file_to_use="$1"
