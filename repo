@@ -131,7 +131,7 @@ else
 	echo "please enable the iternet so updates can be checked"
 fi
 func_sync () {
-while read_dom <$9; do
+while read_dom <&9; do
 	parse_remotes
 	parse_default
 	parse_projects
