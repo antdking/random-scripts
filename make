@@ -20,9 +20,6 @@ else
     newload="$load"
 fi
 
-# from pulser xda buildserver
-start=$(date +%s)
-
 if [[ $(echo "$@" | grep -oP "\-F") || ! ("$cores" || "$load") ]]; then
     final=$(echo "$@" | sed 's/ \-F//')
 else
