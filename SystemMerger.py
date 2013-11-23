@@ -1,5 +1,5 @@
 """
-Copyright (C) 2013  Cybojenix <anthonydking@slimroms.net>
+Copyright (C) 2013 TeamHackLG Cybojenix <anthonydking@slimroms.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,19 +20,19 @@ Copyright (C) 2013  Cybojenix <anthonydking@slimroms.net>
 
 from __future__ import print_function
 import os
-import subprocess
+#import subprocess
 
 print(
-      "System Image Merger Copyright (C) 2013  Cybojenix <anthonydking@slimroms.net>\n"
+      "System Image Merger Copyright (C) 2013 Cybojenix@TeamHackLG\n"
       "This program comes with ABSOLUTELY NO WARRANTY\n"
       "This is free software, and you are welcome to redistribute it\n"
-      "under certain conditions"
+      "under certain conditions\n"
      )
 
 if not os.name == "posix":
-    raise Exception("This script is designed for Linux, it will not work on Windows")
+    print("This script is designed for Linux, it may not work on Windows")
 
-
+'''
 def dd_main(dd_if, dd_of="system.img", args=None):
     """
         dd_if: the input file. ex- "system_2342.bin"
@@ -72,6 +72,7 @@ def dd_seek(dd_if, seek, dd_of="system.img", args=None):
     if not args == None:
         extension.extend(args)
     dd_main(dd_if, dd_of, extension)
+'''
 
 
 # steriod time XD 1:14s to 0:25s
@@ -79,6 +80,15 @@ def ddrep_write_zero(length, dd_of="system.img"):
     with open(dd_of, "w") as f:
         f.seek(length * 512)
         f.write("\0")
+
+
+# winblows support added, no more linux binaries
+# time now at 00:21s
+def dd_replacement(dd_if, offset, dd_of="system.img"):
+    with open(dd_if, "r") as f_bin:
+        with open(dd_of, "r+b") as f_img:
+            f_img.seek(offset*512)
+            f_img.write(f_bin.read())
 
 
 def find_files():
@@ -138,15 +148,27 @@ def bin_to_image(file_list, offset):
     for system_bin in file_list:#[1:]:
         seek = str(system_bin[0] - offset)
         print("writing %s to system.img" % system_bin[1])
-        dd_seek(system_bin[1], seek, args=["bs=512", "conv=notrunc"])
+        dd_replacement(system_bin[1], int(seek))
+        #dd_seek(system_bin[1], seek, args=["bs=512", "conv=notrunc"])
 
 
 def print_after():
+    if os.name == "posix":
+        print(
+              "the system image has been made. to mount it, run\n"
+              "...\n"
+              "sudo mkdir -p /mnt/lgimg && mount system.img /mnt/lgimg\n"
+             )
+    else:
+        print(
+              "the system image has been made. to explore it\n"
+              "open it up in ex2explorer\n"
+             )
     print(
-          "the system image has been made. to mount it, run\n"
-          "...\n"
-          "sudo mkdir -p /mnt/lgimg && mount system.img /mnt/lgimg\n"
-         )          
+          "thank you for using a product, brought to you by TeamHackLG.\n"
+          "If you have any questions, join is on freenode at #TeamHackLG"
+         )
+          
 
 
 def main():
