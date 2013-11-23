@@ -74,6 +74,13 @@ def dd_seek(dd_if, seek, dd_of="system.img", args=None):
     dd_main(dd_if, dd_of, extension)
 
 
+# steriod time XD 1:14s to 0:25s
+def ddrep_write_zero(length, dd_of="system.img"):
+    with open(dd_of, "w") as f:
+        f.seek(length * 512)
+        f.write("\0")
+
+
 def find_files():
     """
         returns: a list of files found that match the form "system_.*\.bin"
@@ -118,7 +125,8 @@ def start_image(file_list, offset):
     last = file_list[-1:][0][0]
     size = last # - offset # fudge factor to extend the system image more. allows for mounting
     print("writing zero's to the base of the image. this can take a while")
-    dd_main("/dev/zero", args=["bs=512", "=".join(["count", str(size)])])
+    ddrep_write_zero(size)
+    #dd_main("/dev/zero", args=["bs=512", "=".join(["count", str(size)])])
 
 
 def bin_to_image(file_list, offset):
