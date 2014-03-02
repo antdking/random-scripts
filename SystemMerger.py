@@ -19,8 +19,7 @@ Copyright (C) 2013 TeamHackLG Cybojenix <anthonydking@slimroms.net>
 # http://forum.xda-developers.com/showpost.php?p=46486167&postcount=8
 
 from __future__ import print_function
-import os
-#import subprocess
+from os import listdir, name, path, remove
 
 print(
       "System Image Merger Copyright (C) 2013 Cybojenix@TeamHackLG\n"
@@ -29,61 +28,14 @@ print(
       "under certain conditions\n"
      )
 
-if not os.name == "posix":
+if not name == "posix":
     print("This script is designed for Linux, it may not work on Windows")
 
-'''
-def dd_main(dd_if, dd_of="system.img", args=None):
-    """
-        dd_if: the input file. ex- "system_2342.bin"
-        dd_of: the output file ex- "system.img"
-        args: for any other argument that dd uses. must be in the form:
-                  ["seek=20391", "conv=notrunc"]
-        returns: nothing
-    """
-    cmd_line = [
-                "dd",
-                "=".join(["if", dd_if]),
-                "=".join(["of", dd_of]),
-               ]
-    if not args == None:
-        cmd_line.extend(args)
-
-    # we shall allow the output information to be seen by the user
-    temp = subprocess.Popen(cmd_line)
-    temp.wait()
-    if not temp.poll() == 0:
-        raise Exception("There was an issue with dd. please report")
-    del temp
-
-
-# this command is used repeatedly, give it a function
-def dd_seek(dd_if, seek, dd_of="system.img", args=None):
-    """
-        dd_if: the input file. ex- "system_2342.bin"
-        dd_of: the output file ex- "system.img"
-        seek: the position of which to start writing from
-              ex- int("34324")
-        args: for any other argument that dd uses. must be in the form:
-                  ["seek=20391", "conv=notrunc"]
-        returns: nothing
-    """
-    extension = ["=".join(["seek", seek])]
-    if not args == None:
-        extension.extend(args)
-    dd_main(dd_if, dd_of, extension)
-'''
-
-
-# steriod time XD 1:14s to 0:25s
 def ddrep_write_zero(length, dd_of="system.img"):
     with open(dd_of, "w") as f:
         f.seek(length * 512)
         f.write("\0")
 
-
-# winblows support added, no more linux binaries
-# time now at 00:21s
 def dd_replacement(dd_if, offset, dd_of="system.img"):
     with open(dd_if, "r") as f_bin:
         with open(dd_of, "r+b") as f_img:
@@ -95,7 +47,7 @@ def find_files():
     """
         returns: a list of files found that match the form "system_.*\.bin"
     """
-    listing = os.listdir(".")
+    listing = listdir(".")
     found = []
     for bin_file in listing:
         if bin_file.startswith("system_") and bin_file.endswith(".bin"):
@@ -136,7 +88,6 @@ def start_image(file_list, offset):
     size = last # - offset # fudge factor to extend the system image more. allows for mounting
     print("writing zero's to the base of the image. this can take a while")
     ddrep_write_zero(size)
-    #dd_main("/dev/zero", args=["bs=512", "=".join(["count", str(size)])])
 
 
 def bin_to_image(file_list, offset):
@@ -144,16 +95,14 @@ def bin_to_image(file_list, offset):
         file_list: a list with turples of the files and numerical data they hold
         returns: nothing
     """
-    #dd_main(file_list[0][1], args=["conv=notrunc", "bs=512"])
     for system_bin in file_list:#[1:]:
         seek = str(system_bin[0] - offset)
         print("writing %s to system.img" % system_bin[1])
         dd_replacement(system_bin[1], int(seek))
-        #dd_seek(system_bin[1], seek, args=["bs=512", "conv=notrunc"])
 
 
 def print_after():
-    if os.name == "posix":
+    if name == "posix":
         print(
               "the system image has been made. to mount it, run\n"
               "...\n"
@@ -172,8 +121,8 @@ def print_after():
 
 
 def main():
-    if os.path.isfile("system.img"):
-        os.remove("system.img")
+    if path.isfile("system.img"):
+        remove("system.img")
     system_files = find_files()
     ordered = order_files(system_files)
     offset = ordered[0][0]
@@ -185,15 +134,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-"""
-system_binss = find_files()
-ordered = order_files(system_binss)
-offset = ordered[0][0]
-print(ordered)
-start_image(ordered, offset)
-bin_to_image(ordered, offset)
-for turple_file in ordered:
-    print(", ".join([turple_file[1], str(turple_file[0])]))
-"""
