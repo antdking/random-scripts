@@ -34,7 +34,7 @@ if not name == "posix":
 
 def ddrep_write_zero(length, dd_of="system.img"):
     with open(dd_of, "w") as f:
-        f.seek(length * 512)
+        f.seek((length * 512) - 1)
         f.write("\0")
 
 def dd_replacement(dd_if, offset, dd_of="system.img"):
