@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Copyright (C) 2013 TeamHackLG Cybojenix <anthonydking@slimroms.net>
 
