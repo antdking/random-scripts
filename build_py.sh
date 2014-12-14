@@ -89,6 +89,7 @@ do
   hg update --clean ${p}
   py rpython/bin/rpython -Ojit pypy/goal/targetpypystandalone.py
   [[ $p == *pypy3* ]] && bin="pypy3" || bin="pypy2"
+  [[ -f "pypy-c" ]] && cp "pypy-c" "/usr/bin/${bin}"
   [[ -f "pypy/goal/pypy-c" ]] && cp "pypy/goal/pypy-c" "/usr/bin/${bin}"
 done
 
