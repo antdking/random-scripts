@@ -3,6 +3,6 @@ for i in $(find . -type f -print)
 do
   if [[ $(file -i "${i}" | grep -i x-python) ]] 
   then
-    2to3 "${i}"
+    2to3 $@ "${i}"
   fi
 done
