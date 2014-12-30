@@ -17,8 +17,8 @@ except ImportError:
 def run_subprocess(cmd):
     sp = Popen(cmd, stdout=PIPE, stderr=PIPE,
                shell=True, universal_newlines=True)
-    exit_code = sp.wait()
     comm = sp.communicate()
+    exit_code = sp.returncode
     if exit_code != 0:
         print("There was an error running the subprocess.\n"
               "cmd: %s\n"
