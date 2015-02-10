@@ -1,7 +1,7 @@
 #!/bin/bash
 # make wrapper, limit the hell out of what people can use
-cores=$(echo "$@" | grep -oP "((\-\-jobs=)|(\-j))\d+" | grep -oP "\d+")
-load=$(echo "$@" | grep -oP "((\-\-load\-average=)|(\-\-load\-max=)|(\-l))\d+" | grep -oP "\d+")
+cores=$(echo "$@" | grep -oP "((\-\-jobs=)|(\-j\W?))\d+" | grep -oP "\d+")
+load=$(echo "$@" | grep -oP "((\-\-load\-average=)|(\-\-load\-max=)|(\-l\W?))\d+" | grep -oP "\d+")
 cores=$(echo "$cores" | awk '{print $(NF);}') # incase anyone does more than one -j/--jobs
 load=$(echo "$load" | awk '{print $(NF);}')
 
