@@ -19,7 +19,7 @@ fi
 
 if [[ "$load" -ge 10 ]]; then
     newload="10"
-if [[ "$load" -ge 8 ]]; then
+elif [[ "$load" -ge 8 ]]; then
     newload="8"
 elif [[ "$load" -ge 6 ]]; then
     newload="6"
