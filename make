@@ -5,18 +5,25 @@ load=$(echo "$@" | grep -oP "((\-\-load\-average=)|(\-\-load\-max=)|(\-l))\d+" |
 cores=$(echo "$cores" | awk '{print $(NF);}') # incase anyone does more than one -j/--jobs
 load=$(echo "$load" | awk '{print $(NF);}')
 
-if [[ "$cores" -ge 12 || "$load" -ge 12 ]]; then
+if [[ "$cores" -ge 12 ]]; then
     echo "stop wasting our resources! terminating your session"
     pkill -u "$USER"
     exit
-elif [[ "$cores" -ge 8 || "$load" -ge 8 ]]; then
-    newcores="6"
-    newload="8"
-elif [[ "$cores" -ge 5 || "$load" -ge 5 ]]; then
+elif [[ "$cores" -ge 8 ]]; then
+    newcores="7"
+elif [[ "$cores" -ge 5 ]]; then
     newcores="5"
-    newload="6"
 else
     newcores="$cores"
+fi
+
+if [[ "$load" -ge 10 ]]; then
+    newload="10"
+if [[ "$load" -ge 8 ]]; then
+    newload="8"
+elif [[ "$load" -ge 6 ]]; then
+    newload="6"
+else
     newload="$load"
 fi
 
