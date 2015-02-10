@@ -2,8 +2,8 @@
 # make wrapper, limit the hell out of what people can use
 cores=$(echo "$@" | grep -oP "((\-\-jobs=)|(\-j))\d+" | grep -oP "\d+")
 load=$(echo "$@" | grep -oP "((\-\-load\-average=)|(\-\-load\-max=)|(\-l))\d+" | grep -oP "\d+")
-cores=$(echo "$cores" | awk '{print $1;}') # incase anyone does more than one -j/--jobs
-load=$(echo "$load" | awk '{print $1;}')
+cores=$(echo "$cores" | awk '{print $(NF);}') # incase anyone does more than one -j/--jobs
+load=$(echo "$load" | awk '{print $(NF);}')
 
 if [[ "$cores" -ge 12 || "$load" -ge 12 ]]; then
     echo "stop wasting our resources! terminating your session"
