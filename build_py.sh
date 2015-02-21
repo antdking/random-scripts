@@ -4,7 +4,7 @@ function check_su() {
 
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
-   exit 1
+   return 1
 fi
 
 }
@@ -24,7 +24,7 @@ function mka() {
 
 function install_deps() {
 
-check_su
+[[ $(check_su) ]] && return 1
 
 apt-get install mercurial
 apt-get install gcc make libffi-dev pkg-config libz-dev libbz2-dev \
@@ -35,7 +35,7 @@ libsqlite3-dev libncurses-dev libexpat1-dev libssl-dev liblzma-dev
 
 function build_cpython() {
 
-check_su
+[[ $(check_su) ]] && return 1
 
 py_versions="\
 v3.4.2
@@ -66,7 +66,7 @@ done
 
 function build_pypy() {
 
-check_su
+[[ $(check_su) ]] && return 1
 
 pypy_versions="\
 release-2.4.0
@@ -89,7 +89,6 @@ do
   hg update --clean ${p}
   py rpython/bin/rpython -Ojit pypy/goal/targetpypystandalone.py
   [[ $p == *pypy3* ]] && bin="pypy3" || bin="pypy2"
-  [[ -f "pypy-c" ]] && cp "pypy-c" "/usr/bin/${bin}"
   [[ -f "pypy/goal/pypy-c" ]] && cp "pypy/goal/pypy-c" "/usr/bin/${bin}"
 done
 
