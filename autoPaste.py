@@ -48,6 +48,8 @@ def auto_paste(word, word_eol, userdata):
     if word[2] != '\r':
         return None
     inputbox = hexchat.get_info('inputbox')
+    if not inputbox:
+        return None
     if inputbox[0] == '/' and inputbox[1] != '/':
         return None  # don't take any chances. don't touch commands.
 
