@@ -45,6 +45,8 @@ def worker(inputbox):
 
 
 def auto_paste(word, word_eol, userdata):
+    if not word or len(word) < 3:
+        return None
     if word[2] != '\r':
         return None
     inputbox = hexchat.get_info('inputbox')
